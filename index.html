@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUCHS Online Exam Dashboard</title>
+
+    <!-- Inline CSS -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px 0;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .response {
+            margin-top: 20px;
+        }
+        #report {
+            display: none;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+        }
+        input[type="file"] {
+            margin-top: 10px;
+        }
+        #timer {
+            font-size: 20px;
+            color: #d9534f;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>DUCHS Online Exam Dashboard</h1>
+
+        <!-- Timer -->
+        <div id="timer">Time Left: <span id="time">00:00</span></div>
+
+        <!-- Exam Settings -->
+        <h2>Exam Settings</h2>
+        <button id="createExam">Create Exam</button>
+        <button id="editExam">Edit Exam</button>
+        <input type="file" id="importFile" accept=".txt" />
+        <button id="sendExam">Send Exam</button>
+
+        <!-- Exam Responses -->
+        <h2>Exam Responses</h2>
+        <button id="viewResponses">View Responses</button>
+
+        <!-- Generate Report -->
+        <h2>Generate Report</h2>
+        <button id="generateReport">Generate Report</button>
+
+        <!-- Send Results -->
+        <h2>Send Results</h2>
+        <button id="sendResults">Send Results to Students</button>
+
+        <!-- Response Display -->
+        <div class="response" id="responseDisplay"></div>
+
+        <!-- Report Display -->
+        <div id="report"></div>
+    </div>
+
+    <!-- Inline JavaScript -->
+    <script>
+        // Timer functionality
+        let timeLeft = 600; // 10 minutes in seconds
+        const timerElement = document.getElementById('time');
+
+        function startTimer() {
+            const timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Time's up!");
+                } else {
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    timeLeft--;
+                }
+            }, 1000);
+        }
+
+        // Start the timer when the page loads
+        window.onload = startTimer;
+
+        document.getElementById('createExam').addEventListener('click', function() {
+            document.getElementById('responseDisplay').innerHTML = 'Exam created successfully!';
+        });
+
+        document.getElementById('editExam').addEventListener('click', function() {
+            document.getElementById('responseDisplay').innerHTML = 'Exam editing mode activated!';
+        });
+
+        // Import exam questions from a text file
+        document.getElementById('importFile').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    const questions = parseQuestions(content);
+                    // Send questions to the backend
+                    fetch('http://localhost:5000/import-questions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ questions }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('responseDisplay').innerHTML = data.message;
+                    })
+                    .catch(err => {
+                        document.getElementById('responseDisplay').innerHTML = 'Error importing questions: ' + err.message;
+                    });
+                };
+                reader.readAsText(file);
+            } else {
+                document.getElementById('responseDisplay').innerHTML = 'No file selected.';
+            }
+        });
+
+        function parseQuestions(content) {
+            const questions = content.trim().split('\n\n'); // Split by double line breaks
+            return questions.map(question => {
+                const lines = question.split('\n');
+                const questionText = lines[0];
+                const scoreMatch = questionText.match(/\{(\d+)\}$/);
+                const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+                const options = lines.slice(1).map(line => {
+                    const trimmedLine = line.trim();
+                    const isCorrect = trimmedLine.startsWith('(x)') || trimmedLine.startsWith('[x]');
+                    const text = trimmedLine.replace(/^\(x\) |\[x\] |^\( \) |\[ \] /, '').trim();
+                    return { text, isCorrect };
+                });
+                return { questionText, score, options };
+            });
+        }
+
+        document.getElementById('sendExam').addEventListener('click', function() {
+            document.getElementById('responseDisplay').innerHTML = 'Exam sent to students!';
+        });
+
+        document.getElementById('viewResponses').addEventListener('click', function() {
+            document.getElementById('responseDisplay').innerHTML = 'Viewing exam responses...';
+            // Simulate fetching responses
+            setTimeout(() => {
+                document.getElementById('responseDisplay').innerHTML = 'Fetched 10 responses.';
+            }, 1000);
+        });
+
+        document.getElementById('generateReport').addEventListener('click', function() {
+            const report = 'Report generated: 10 students completed the exam.';
+            document.getElementById('report').innerHTML = report;
+            document.getElementById('report').style.display = 'block';
+        });
+
+        document.getElementById('sendResults').addEventListener('click', function() {
+            document.getElementById('responseDisplay').innerHTML = 'Results sent to students!';
+        });
+    </script>
+
+</body>
+</html>

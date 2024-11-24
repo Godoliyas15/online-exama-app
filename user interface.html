@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duchs-Online Exam App</title>
+
+    <!-- Inline CSS -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        .login-form, .exam-list {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"], input[type="password"], input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .exam-item {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Duchs-Online Exam App</h1>
+    </header>
+
+    <div class="container">
+        <!-- Login Form -->
+        <div class="login-form">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <input type="submit" value="Login">
+            </form>
+        </div>
+
+        <!-- Exam List -->
+        <div class="exam-list">
+            <h2>Available Exams</h2>
+            <div id="exams">
+                <!-- Exam items will be dynamically inserted here -->
+                <div class="exam-item">Medicine Exam - <button onclick="takeExam('MD.')">Take Exam</button></div>
+                <div class="exam-item">Clinical pharmacy Exam - <button onclick="takeExam('pharmacy')">Take Exam</button></div>
+                <div class="exam-item">BSc Nursing Exam - <button onclick="takeExam('Nursing')">Take Exam</button></div>
+                <div class="exam-item">Clinical Laboratory Exam - <button onclick="takeExam('Laboratory')">Take Exam</button></div>
+                <div class="exam-item">Dental Medicine Exam - <button onclick="takeExam('DDM')">Take Exam</button></div>
+                <div class="exam-item">Health Officers Exam - <button onclick="takeExam('H.O')">Take Exam</button></div>
+                <div class="exam-item">BSc Aneasthesia Exam - <button onclick="takeExam('Aneasthesia')">Take Exam</button></div>
+                <div class="exam-item">ISEO MSC Exam - <button onclick="takeExam('ISEO')">Take Exam</button></div>
+                <div class="exam-item">Public Health MSC Exam - <button onclick="takeExam('P.H')">Take Exam</button></div>
+                <div class="exam-item">BSc OR Nurse Exam - <button onclick="takeExam('OR nurse')">Take Exam</button></div>
+                 
+            </div>
+        </div>
+    </div>
+
+ <!-- Change Password Form -->
+        <div class="login-form" id="changePasswordForm" style="display: none;">
+            <h2>Change Password</h2>
+            <form id="passwordForm">
+                <input type="password" id="newPassword" placeholder="New Password" required>
+                <input type="submit" value="Change Password">
+            </form>
+        </div>
+    </div>
+
+    <!-- Inline JavaScript -->
+    <script>
+        const commonPassword = "pass@2425"; // Common password for all students
+        const students = [
+            { firstName: "Abrham", lastName: "Getnet" },
+            { firstName: "Bekalu", lastName: "Derseh" },
+            { firstName: "Bogale", lastName: "Dagnaw" },
+            { firstName: "Chernet", lastName: "Asefa" },
+            { firstName: "Cheru", lastName: "Temesgen" },
+        ];
+
+        // Function to generate usernames
+        function generateUsernames(students) {
+            const usernames = [];
+            students.forEach((student, index) => {
+                const username = (student.firstName + student.lastName).toLowerCase() + (index + 1);
+                usernames.push({ username: username, password: commonPassword });
+            });
+            return usernames;
+        }
+
+        // Generate usernames and display in console
+        const studentCredentials = generateUsernames(students);
+        console.log("Generated Usernames and Common Password:");
+        studentCredentials.forEach(credential => {
+            console.log(`Username: ${credential.username}, Password: ${credential.password}`);
+        });
+
+        let loggedInUser = null;
+
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Check if the username is valid and the password matches
+            const user = studentCredentials.find(cred => cred.username === username);
+            if (user && password === commonPassword) {
+                loggedInUser = username;
+                alert("Login successful! Please change your password.");
+                document.getElementById('loginForm').reset();
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('examList').style.display = 'none';
+                document.getElementById('changePasswordForm').style.display = 'block';
+            } else {
+                alert("Invalid username or password.");
+            }
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+            const newPassword = document.getElementById('newPassword').value;
+
+            // Simulate password change (you can add actual logic here)
+            alert("Password changed successfully!");
+            document.getElementById('changePasswordForm').style.display = 'none';
+            document.getElementById('examList').style.display = 'block';
+        });
+
+        function takeExam(examName) {
+            alert("You are about to take the " + examName + " exam.");
+            // Redirect to the exam page or load the exam content
+        }
+    </script>
+
+</body>
+</html>
